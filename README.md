@@ -22,6 +22,10 @@ The project aims to enable operation with modules located at different locations
 - Modulation at the transmission site using EasyDAB.
 Ofcourse it is also possible to have everything together on one table.
 
+# Documentation
+
+Most documentation can be found in the Wiki. Some examples and script files will be in the code section.
+
 # Contributing
 
 Additions and corrections are welcome !
