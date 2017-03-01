@@ -24,7 +24,7 @@ Ofcourse it is also possible to have everything together on one table.
 
 # Documentation
 
-Most documentation can be found in the Wiki. Some examples and script files will be in the code section.
+Most documentation can be found in the [Wiki] ( https://github.com/glokhoff/RaspDAB/wiki ). Some examples and script files will be in the code section.
 
 # Contributing
 
