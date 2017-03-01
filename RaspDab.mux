@@ -1,0 +1,184 @@
+; DAB+ 4 RaspDAB Multiplex example
+;
+
+general {
+    ; the DAB Transmission mode (values 1-4 accepted)
+    dabmode 1
+
+    ; the number of ETI frames to generate (set to 0 to get an unlimited number)
+    nbframes 0
+
+    ; Set to true to enable logging to syslog
+    syslog false
+
+    ; Enable timestamp definition necessary for SFN
+    ; This also enables time encoding using the MNSC.
+    tist true
+
+    ; The management server is a simple TCP server that can present
+    ; statistics data (buffers, overruns, underruns, etc)
+    ; which can then be graphed a tool like Munin
+    ; The doc/stats_dabmux_multi.py tool is a suitable
+    ; plugin for that.
+    ; If the port is zero, or the line commented, the server
+    ; is not started.
+    managementport 12720
+}
+
+remotecontrol {
+    ; enable the telnet remote control server on the given port
+    ; This server allows you to read and define parameters that
+    ; some features export. It is only accessible from localhost.
+    ; Set the port to 0 to disable the server
+    telnetport 12721
+    ;telnetport 0
+
+    ; The remote control is also accessible through a ZMQ REQ/REP socket,
+    ; and is useful for machine-triggered interactions. It supports the
+    ; same commands as the telnet RC.
+    ; The example code in doc/zmq_remote.py illustrates how to use this rc.
+    ; To disable the zeromq endpoint, remove the zmqendpoint line.
+    ; By specifying "lo" in the URL, we make the server only accessible
+    ; from localhost. You can write tcp://*:12722 to make it accessible
+    ; on all interfaces.
+    zmqendpoint tcp://lo:12722
+
+    ; the remote control server makes use of the unique identifiers
+    ; for the subchannels, services and components. Make sure you
+    ; chose them so that you can identify them.
+}
+
+; Some ensemble parameters
+ensemble {
+    id 0x8fff	; you can also use decimal if you want
+    ecc 0xe3	; Extended Country Code, 0xe3 = Netherlands
+			; (see RaspDAB github repository for other codes)
+    local-time-offset auto  ; automatically calculate from system local time
+                            ; or
+    ;local-time-offset 1    ; in hours, supports half-hour offsets
+
+    ; all labels are maximum 16 characters in length
+    label "RaspDAB+ Mux"
+    ; the 8 character shortlabel is a subset of the label:
+    shortlabel "RaspDAB+"
+}
+
+; Definition of DAB services
+services {
+    ; Each service has it's own unique identifier, that is
+    ; used throughout the configuration file and for the RC.
+    srv-R4B {
+        id 0x8b01
+        label "Radio4Brainport"
+	shortlabel "R4B"
+	pty	23			; leisure
+	language 0x09			; english
+    }
+; Uncomment (remove the ; in front of) the next lines for a second DAB audio program
+;    srv-r4bDAB {
+;        id 0x8b02
+;        label "Rad4Brainprt DAB"
+;	shortlabel "R4B DAB"
+;	pty	23			; leisure
+;	language 0x09			; english
+;    }
+}
+
+subchannels {
+    sub-R4B {
+        ; This is our DAB+ programme, using a ZeroMQ 
+        type dabplus
+        ; Accepts connections to port 59000 from any interface.
+        ; Use ODR-AudioEnc as encoder
+        inputfile "tcp://*:59000"
+        bitrate 64
+        id 1
+        protection 1
+
+        ; ZMQ specific options, mandatory:
+
+        ; Maximum size of input buffer, in AAC frames (24ms)
+        ; when this buffer size is reached, some frames will be
+        ; discarded to get the size again below this value.
+        ; As the present implementation discards entire AAC superframes,
+        ; (5 frames = 120ms) the effect will clearly be audible.
+        zmq-buffer 40
+
+        ; At startup or after an underrun, the buffer is filled to this
+        ; amount of AAC frames before streaming starts.
+        zmq-prebuffering 20
+
+        ; In an ideal scenario, where the input rate exactly corresponds
+        ; to the rate at which the frames are consumed by dabmux, you
+        ; see the buffer level staying around the zmq-prebuffering value.
+        ; Network latency jitter can make it temporarily go lower or higher.
+        ; Encoder clock drift will make the buffer either slowly fill or
+        ; empty, which will create intermittent glitches.
+    }
+
+; Uncomment (remove the ; in front of) the next lines for a second DAB audio program
+;    sub-r4bDAB {
+        ; This is our DAB programme, using a ZeroMQ
+;        type audio
+        ; Accepts connections to port 59001 from any interface.
+        ; Use ODR-AudioEnc as encoder
+;        inputfile "tcp://*:59001"
+;        bitrate 192
+;        id 2
+;        protection 2
+
+;        zmq-buffer 40
+;        zmq-prebuffering 20
+
+;    }
+}
+
+; In our simple example, each component links one service to one subchannel
+components {
+    ; the component unique identifiers are used for the RC.
+    comp-R4B {
+        service srv-R4B
+        subchannel sub-R4B
+    }
+
+; Uncomment (remove the ; in front of) the next lines for a second DAB audio program
+;    comp-r4bDAB {
+;        service srv-r4bDAB
+;        subchannel sub-r4bDAB
+;    }
+}
+
+; A list of outputs
+outputs {
+    ; The unique-id can be used by the remote control or the statistics server
+    ; to identify the output
+
+    ; Output RAW ETI NI to standard output
+    ;stdout "fifo:///dev/stdout?type=raw"
+
+    ; ZeroMQ output example 
+    ; This output does not back-pressure the multiplexer.
+    ; Listen on all interfaces, on port 9100
+    zmq  "zmq+tcp://*:59100"
+
+    ; Output ETI-over-TCP. This is like piping a RAW ETI NI data stream
+    ; into a TCP socket, except that the output can handle simultaneous
+    ; connections.
+    ; 0.0.0.0 means "listen on all interfaces"
+    ; This output does not back-pressure the multiplexer.
+    ;tcp "tcp://*:9200"
+
+    ; Throttle output to real-time (one ETI frame every 24ms)
+    throttle "simul://"
+
+    ; Important! For real-time operation, you need to have exactly one
+    ; output that applies back-pressure to ODR-DabMux, otherwise it will run
+    ; at the highest possible rate on your system!
+    ;
+    ; For an output to a pipe, the data consumer at the other end of the pipe
+    ; will dictate the multiplexing rate to ODR-DabMux.
+    ;
+    ; If you use the zmq+tcp:// or the tcp:// output,
+    ; you must also enable a simul:// output!
+}
+
