@@ -44,4 +44,4 @@ Big thank you to them to making DAB transmission this easy !
 # License
 
 The documentation in this project is offered under the Creative Commons Zero v1.0 Universal license.
-(But would be nice if you mention the source ;o) Also, please inform me if you found this project useful and actually created a DAB ensemble based on it: raspdab (at) radio4brainport (dot) org )
+(But would be nice if you mention the source ;o) Also, please inform me if you found this project useful and actually created a DAB ensemble based on it: raspdab (at) lokhoff (dot) com )
