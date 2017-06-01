@@ -1,5 +1,5 @@
 # RaspDAB
-An ODR-mmbtools automated DAB+ micro transmitter using Raspberry Pi and EasyDab v2
+A practical guide for an ODR-mmbtools automated DAB+ micro transmitter using Raspberry Pi and EasyDab v2. May also be useful for other Linux based installations.
 
 Nowadays to transmit a DAB+ ensemble requires little more than 
 - the OpenDigitalRadio mmbtools software
