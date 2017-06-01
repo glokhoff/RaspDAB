@@ -6,7 +6,7 @@ Nowadays to transmit a DAB+ ensemble requires little more than
 - a Raspberry Pi, and
 - an EasyDAB v2 board
 
-![Photo of a RaspDAB setup](https://lh3.googleusercontent.com/xwmsbN_9FZEk_8zasF-dzpAjSGXvDYWWQvw34nfMGpAJHi8_OwQ1OORnRLHqSGrEjtT1nHSEqyPH9IA=w1304-h697)
+![Photo of a RaspDAB setup](https://github.com/glokhoff/RaspDAB/blob/master/20170222_120621.jpg)
 
 This project aims to provide documentation how to build such a 'micro transmitter' which could be used as the starting point for a low cost DAB+ transmitter for e.g. local radio. It is based on experience from building a system, starting from getting the Raspbian operating system installed, installing the OpenDigitalRadio programs required, configuring and using these, installing supervisor to enable automatic start up and configuring and using the EasyDAB v2 DAB modulator board.
 
