@@ -37,7 +37,7 @@ Additions and corrections are welcome !
 The project is fully based on the results from
 - developers of the [Raspberry Pi](https://www.raspberrypi.org/) and [Raspbian](http://www.raspbian.org/) 
 - developers in the [OpenDigitalRadio](http://www.opendigitalradio.org/) project
-- Sergiy Gur'yev from Kiev who developed the [EasyDAB v2](http://tipok.org.ua/node/46) board
+- Sergiy from Kiev who developed the [EasyDAB v2](http://tipok.org.ua/node/46) board
 
 Big thank you to them to making DAB transmission this easy !
 
